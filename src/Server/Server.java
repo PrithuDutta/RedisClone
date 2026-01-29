@@ -27,6 +27,9 @@ public class Server {
 
     public Server (int port) {
         this.db = new Database();
+
+        db.load(); 
+
         try (ServerSocket server = new ServerSocket(port)) {
             System.out.println("Server Started"); 
             System.out.println("Waiting for Client Connection...");

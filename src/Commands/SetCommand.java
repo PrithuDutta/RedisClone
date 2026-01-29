@@ -4,12 +4,12 @@ public class SetCommand implements Commands {
     @Override
     public String execute (Database db, String[] args) {
         if (args.length != 3) {
-            return "ERROR: SET command requires exactly two arguments.";
+            return Protocol.error("ERROR: SET command requires exactly two arguments.");
         }
         String key = args[1];
         String value = args[2];
         db.set(key, value);
-        return "OK";
+        return Protocol.simpleString("OK");
     }
     
 }

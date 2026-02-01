@@ -16,9 +16,8 @@ public class Connection {
     public Connection(String ipString, int port) {
         try {
             s = new Socket(ipString, port);
-            socketInput = new BufferedReader(new InputStreamReader(s.getInputStream())); 
-            socketOutput = new PrintWriter(s.getOutputStream());
-            consoleInput = new BufferedReader(new InputStreamReader(System.in)); 
+            communication();
+
         } catch (UnknownHostException e) {
             System.out.println(e.getMessage());
             System.exit(-1); 
@@ -26,29 +25,51 @@ public class Connection {
             System.out.println(e.getMessage());
             System.exit(-1); 
         }
+    }
+
+    private void communication() {
+        try {
+            socketInput = new BufferedReader(new InputStreamReader(s.getInputStream()));
+            socketOutput = new PrintWriter(s.getOutputStream(), true); 
+            consoleInput = new BufferedReader(new InputStreamReader(System.in));
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            return; 
+        }
+
         String stream = ""; 
         //$!$ temperory stream ender
         while(true) {
-            try{
+            try {
                 stream = consoleInput.readLine();
                 if (stream.equals("$!$")) {
-                    socketOutput.println(stream); 
+                    socketOutput.println(stream);
                     socketOutput.flush();
                     break;
                 }
-                socketOutput.println(stream); 
+                
+                socketOutput.println(stream);
                 socketOutput.flush();
+
                 String response = socketInput.readLine();
-                if(response == null || response == "") {
-                    System.out.println("No response from server.");
-                    continue; 
+                
+                if(response == null) {
+                    System.out.println("Server closed connection.");
+                    break;
                 }
+
                 System.out.println("Server: " + response);
+
+                if (response.startsWith("$") && !response.equals("$-1")) {
+                    String value = socketInput.readLine();
+                    System.out.println("Server (Data): " + value);
+                }
+
             } catch (IOException i) {
                 System.out.println(i);
             }
         }
-
+        
         try {
             socketInput.close();
             socketOutput.close(); 
@@ -59,11 +80,12 @@ public class Connection {
             System.out.println(i);
         }
     }
+        
 
 
     
     public static void main(String[] args) {
-        Connection c = new Connection("127.0.0.1", 5000); 
+       new Connection("127.0.0.1", 5000); 
     }
     
 }

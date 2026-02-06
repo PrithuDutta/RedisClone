@@ -58,14 +58,7 @@ public class HandleClient implements Runnable {
                 if (message == null || message.equals("$!$")) {
                     break;
                 }
-                // //test communication
-                // if(message.equals("TEST COMM")) {
-                // out.println("TEST COMM RECEIVED");
-                // out.flush();
-                // } else {
-                // out.println("Message received");
-                // out.flush();
-                // }
+                
                 String[] parts = message.split(" ");
                 String commandName = parts[0].toUpperCase();
                 Commands.Commands command = commandMap.get(commandName);

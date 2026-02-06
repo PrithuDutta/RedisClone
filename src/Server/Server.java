@@ -2,6 +2,8 @@ package Server;
 
 import java.io.*;
 import java.net.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import Database.Database;
 
@@ -9,10 +11,13 @@ public class Server {
 
     private Database db;
     private ServerSocket serverSocket;
+    private ExecutorService threadPool; 
 
     public Server(int port) {
         this.db = new Database();
         db.load();
+
+        this.threadPool = Executors.newFixedThreadPool(10); 
 
         try {
             serverSocket = new ServerSocket(port);
@@ -24,7 +29,7 @@ public class Server {
                 try {
                     Socket clientSocket = serverSocket.accept();
                     System.out.println("Client Connected!");
-                    new Thread(new HandleClient(clientSocket, db)).start();
+                    threadPool.execute(new HandleClient(clientSocket, db));
                 } catch (IOException e) {
                     System.out.println("Client Error: " + e.getMessage());
                 }
@@ -36,6 +41,7 @@ public class Server {
                 if (serverSocket != null && !serverSocket.isClosed()) {
                     serverSocket.close();
                 }
+                threadPool.shutdown();
             } catch (IOException e) {
                 System.out.println("Error closing server socket: " + e.getMessage());
             }
